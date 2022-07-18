@@ -8,10 +8,17 @@ const pathCharacter = "*";
 let currentPlaying = true;
 
 class Field {
-  constructor(field = [[]]) {
+  constructor(field = [[]], height, width) {
     this._field = field;
-    this.y = 0
-    this.x = 0
+
+    do {
+      this.y = Math.floor(Math.random() * height);
+      this.x = Math.floor(Math.random() * width);
+    } while (this.field[this.y][this.x] == hat)
+    this.field[this.y][this.x] = pathCharacter;
+
+    // this.y = 0
+    // this.x = 0
   }
 
   get field() {
@@ -80,12 +87,19 @@ class Field {
     }
   }
 
-  static generateField(height, width, percentage) {
+  static generateField(height, width, percentage, maxHoleNum) {
+    let holeNum = 0
     // create an field or hole
     const fieldOrHole = (percentage) => {
       const ranNum = Math.random() * 100;
-      let generateResult = ranNum < percentage ? hole : fieldCharacter;
-      return generateResult;
+      if (ranNum < percentage && holeNum < maxHoleNum) {
+        holeNum++
+        return hole
+      } else {
+        return fieldCharacter
+      }
+      // let generateResult = ranNum < percentage ? hole : fieldCharacter;
+      // return generateResult;
     };
 
     // place these fields or holes into the map
@@ -95,6 +109,7 @@ class Field {
         for (let col = 0; col < width; col++) {
           widthArr.push(fieldOrHole(percentage));
         }
+        holeNum = 0
         return widthArr;
       }
 
@@ -107,44 +122,50 @@ class Field {
 
     const startField = placeField();
 
-// method 1
-    do{
-      const hatRow = Math.floor(Math.random() * height)
-      const hatCol = Math.floor(Math.random() * width)
-      startField[hatRow][hatCol] = hat      
-    }while(hat == startField[0][0])
-
-    startField[0][0] = pathCharacter
-
-// method 2
-    // let hatRow, hatCol, startRow, startCol;
+    // --- method 1 ---
     // do {
-    //   hatRow = Math.floor(Math.random() * height);
-    //   hatCol = Math.floor(Math.random() * width);
-    //   startField[hatRow][hatCol] = hat;
+    //   const hatRow = Math.floor(Math.random() * height)
+    //   const hatCol = Math.floor(Math.random() * width)
+    //   startField[hatRow][hatCol] = hat
+    // } while (hat == startField[0][0])
+    // startField[0][0] = pathCharacter
 
-    //   startRow = Math.floor(Math.random() * height);
-    //   startCol = Math.floor(Math.random() * width);
-    //   startField[startRow][startCol] = pathCharacter;
-    //   // update the path x, y property
-    //   this.y = startRow
-    //   this.x = startCol
-    // } while (startField[hatRow][hatCol] == startField[startRow][startCol]);
+    // --- method 2 ---
+
+    const hatRow = Math.floor(Math.random() * height)
+    const hatCol = Math.floor(Math.random() * width)
+    startField[hatRow][hatCol] = hat
 
     return startField
   }
 }
 
-const myField = new Field(Field.generateField(10, 10, 20));
-
 function game() {
-  while (currentPlaying) {
-    console.log(myField.print());
-    // console.log(myField.currentPos);
-    myField.direction();
-    myField.gameover();
+  let replay = true
+  while (replay) {
+
+    const myField = new Field(Field.generateField(10, 10, 20, 2), 10, 10);
+
+    while (currentPlaying) {
+      console.log(myField.print());
+      // console.log(myField.currentPos);
+      myField.direction();
+      myField.gameover();
+    }
+    console.log("Game Over!");
+    let replayOption = prompt("Do you want to play it again? Y/N: ")
+    switch (replayOption) {
+      case "Y":
+        console.log("There you goooo!!")
+        currentPlaying = true
+        break
+      default:
+        console.log("Good bye!!")
+        replay = false
+        break
+    }
+
   }
-  console.log("Game Over!");
 }
 
 game();
